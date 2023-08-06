@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Artwork Search</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="artworks.html">Artwork Search</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active">
+					<a class="nav-link" href="imagegal.html">Image Gallery</a>
+				</li>
+				
+			</ul>
+		</div>
+	</nav>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">Search for Artwork</div>
+            <div class="card-body">
+                <form id="search-form">
+                    <div class="form-group">
+                        <label for="query-input">Search Query:</label>
+                        <input type="text" class="form-control" id="query-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="object-type-select">Object Type:</label>
+                        <select class="form-control" id="object-type-select">
+                            <option value="">All</option>
+                            <option value="painting">Painting</option>
+                            <option value="drawing">Drawing</option>
+                            <option value="print">Print</option>
+                            <option value="photograph">Photograph</option>
+                            <option value="sculpture">Sculpture</option>
+                        </select>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="image-only-checkbox">
+                        <label class="form-check-label" for="image-only-checkbox">Images Only</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+        <div id="results-container" class="mt-4"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById("search-form");
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                var query = document.getElementById("query-input").value;
+                var objectType = document.getElementById("object-type-select").value;
+                var imageOnly = document.getElementById("image-only-checkbox").checked;
+
+                // Build URL for API request
+                var url = "https://www.rijksmuseum.nl/api/en/collection";
+                url += "?key=d8rnr3uL";
+                url += "&format=json";
+                url += "&q=" + encodeURIComponent(query);
+                if (objectType !== "") {
+                    url += "&type=" + encodeURIComponent(objectType);
+                }
+                if (imageOnly) {
+                    url += "&imgonly=true";
+                }
+
+                // Create XHR object and make GET request
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+
+                            // Clear previous search results
+                            var resultsContainer = document.getElementById("results-container");
+                            while (resultsContainer.firstChild) {
+                                resultsContainer.removeChild(resultsContainer.firstChild);
+                            }
+
+                            // Create new search results
+                            if (response.artObjects.length > 0) {
+                                var heading = document.createElement("h2");
+                                heading.textContent = "Search Results";
+                                resultsContainer.appendChild(heading);
+
+                                var row = document.createElement("div");
+                                row.className = "row";
+                                resultsContainer.appendChild(row);
+
+                                response.artObjects.forEach(function(artObject) {
+                                    var col = document.createElement("div");
+                                    col.className = "col-md-4 mb-4";
+
+                                    var card = document.createElement("div");
+                                    card.className = "card";
+
+                                    var imageContainer = document.createElement("div");
+                                    imageContainer.className = "text-center mt-2";
+
+                                    var image = document.createElement("img");
+                                    image.src = artObject.webImage.url;
+                                    image.alt = artObject.title;
+                                    image.style.maxHeight = "200px";
+                                    image.style.objectFit = "contain";
+                                    imageContainer.appendChild(image);
+
+                                    var cardBody = document.createElement("div");
+                                    cardBody.className = "card-body";
+
+                                    var title = document.createElement("h5");
+                                    title.className = "card-title";
+                                    title.textContent = artObject.title;
+
+                                    var artist = document.createElement("p");
+                                    artist.className = "card-text";
+                                    artist.textContent = "Artist: " + artObject.principalOrFirstMaker;
+
+                                    var objectNumber = document.createElement("p");
+                                    objectNumber.className = "card-text";
+                                    objectNumber.textContent = "Object Number: " + artObject.objectNumber;
+
+                                    cardBody.appendChild(title);
+                                    cardBody.appendChild(artist);
+                                    cardBody.appendChild(objectNumber);
+
+                                    card.appendChild(imageContainer);
+                                    card.appendChild(cardBody);
+
+                                    col.appendChild(card);
+                                    row.appendChild(col);
+                                });
+                            } else {
+                                var heading = document.createElement("h2");
+                                heading.textContent = "No Results Found";
+                                resultsContainer.appendChild(heading);
+                            }
+                        } else {
+                            console.error("Error making request:", xhr.status, xhr.statusText);
+                        }
+                    }
+                };
+                xhr.send();
+            });
+        });
+    </script>
+</body>
+</html>

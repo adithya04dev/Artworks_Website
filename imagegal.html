@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Galler</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <style>.gallery-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .artwork {
+        width: 10%;
+        margin: 1%;
+      }
+      
+      .artwork img {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+      }
+      
+      .artwork-title {
+        font-size: 1rem;
+      }
+      
+      .artwork-details {
+        font-size: 0.8rem;
+      }
+      .artwork-img {
+  height: 200px;
+  object-fit: cover;
+}
+
+      
+      </style>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="artworks.html">Artwork Search</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active">
+					<a class="nav-link" href="imagegal.html">Image Gallery</a>
+				</li>
+				
+			</ul>
+		</div>
+	</nav>
+    <div id="gallery-container" class="container"></div>
+    <script>
+        // Obtain an API key from the Rijksmuseum API website
+const apiKey = 'd8rnr3uL';
+// Create the XHR request
+// Obtain an API key from the Rijksmuseum API website
+// Obtain an API key from the Rijksmuseum API website
+
+// Obtain an API key from the Rijksmuseum API website
+
+// Obtain an API key from the Rijksmuseum API website
+
+// Create the XHR request
+const xhr = new XMLHttpRequest();
+const url = `https://www.rijksmuseum.nl/api/en/collection?key=${apiKey}&format=json&ps=200`;
+xhr.open('GET', url);
+xhr.onload = function() {
+  if (xhr.status === 200) {
+    const data = JSON.parse(xhr.responseText);
+    // Extract the relevant information from the response data
+    const artworks = data.artObjects.map((artwork) => {
+      return {
+        id: artwork.id,
+        title: artwork.title,
+        artist: artwork.principalOrFirstMaker,
+        imageUrl: artwork.webImage.url,
+        description: artwork.description,
+      };
+    });
+    // Use JavaScript DOM manipulation and Bootstrap to create and populate the gallery view
+    const galleryContainer = document.getElementById('gallery-container');
+    const row = document.createElement('div');
+    row.classList.add('row');
+    galleryContainer.appendChild(row);
+    artworks.forEach((artwork) => {
+      const col = document.createElement('div');
+      col.classList.add('col-lg-3', 'col-md-4', 'col-sm-6', 'mb-4');
+      const card = document.createElement('div');
+      card.classList.add('card', 'h-100');
+      const cardImg = document.createElement('img');
+      cardImg.classList.add('card-img-top', 'artwork-img');
+      cardImg.src = artwork.imageUrl;
+      cardImg.alt = artwork.title;
+      card.appendChild(cardImg);
+      const cardBody = document.createElement('div');
+      cardBody.classList.add('card-body');
+      const cardTitle = document.createElement('h5');
+      cardTitle.classList.add('card-title', 'artwork-title');
+      cardTitle.textContent = artwork.title;
+      cardBody.appendChild(cardTitle);
+      const cardSubtitle = document.createElement('h6');
+      cardSubtitle.classList.add('card-subtitle', 'mb-2', 'text-muted', 'artwork-details');
+      cardSubtitle.textContent = `By ${artwork.artist}`;
+      cardBody.appendChild(cardSubtitle);
+      const cardText = document.createElement('p');
+      cardText.classList.add('card-text', 'artwork-description');
+      cardText.textContent = artwork.description;
+      cardBody.appendChild(cardText);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      row.appendChild(col);
+    });
+    // Add event listeners to enable users to interact with the gallery
+    const artworkImgs = document.querySelectorAll('.artwork-img');
+    artworkImgs.forEach((artworkImg) => {
+      artworkImg.addEventListener('click', () => {
+        // TODO: Implement zoom-in functionality
+      });
+    });
+  } else {
+    console.log('Error:', xhr.statusText);
+  }
+};
+xhr.onerror = function() {
+  console.log('Error:', xhr.statusText);
+};
+xhr.send();
+
+</script>
+</body>
+</html>
